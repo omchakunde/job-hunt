@@ -15,9 +15,11 @@ import TableFooter from "../../../../components/dashboard/Tables/TableFooter";
 import { CSVLink } from "react-csv";
 import axios from "axios";
 import Config from "../../../../config/Config.json";
+// import dateFormat from 'dateformat';
 
 function Reports() {
   const [reportsData, setReportsData] = useState([]);
+
   const [page, setPage] = useState(1);
   const { slice, range } = useTable(reportsData, page, 5);
 
@@ -31,26 +33,38 @@ function Reports() {
 
   useEffect(() => {
     const fetchTd = async () => {
-      try {
-        const res = await axios.get(
-          `${Config.SERVER_URL}/provider/jobs`,
-          {
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-          }
-        );
+      const res = await axios.get(`${Config.SERVER_URL + "provider/jobs/"}`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
 
-        const updatedList = [...res.data.jobs];
-        setReportsData(updatedList);
-      } catch (error) {
-        console.error("Error fetching reports:", error);
-      }
+      const updatedList = [...res.data.jobs];
+      // const updatedList = ord.map(item =>
+      //   {
+
+      //       return {...item, startDate:dateFormat(item.startDate,configData.DATE_FORMAT,true)}
+      //       //return{...item,created:new Intl.DateTimeFormat("en-IN","mmmm dd, yyyy" ).format(item.created)}
+      //       // configData.DATE_FORMAT_OBJECT
+      //   })
+      // setData(updatedList);
+      setReportsData(updatedList);
     };
-
     fetchTd();
   }, []);
 
+  // useEffect(() => {
+
+  //   const fetchbug = async () => {
+  //   await axios.get("http://localhost:3000/bugs")
+  //       .then(res => {
+  //           const bugs = res.data;
+  //           setJsonBugs(bugs);
+
+  //       });
+  //   };
+  //   fetchbug();
+  // })
   const validateStart = () => {
     let error = "";
     if (!forminputs["startdate"] && forminputs["enddate"]) {
@@ -93,35 +107,48 @@ function Reports() {
     if (validate()) {
       setFilterDates({ ...forminputs });
     }
-
     let stdate = new Date(forminputs.startdate);
     let endate = new Date(forminputs.enddate);
-
     let newData = reportsData.filter((report) => {
+      // console.log(report);
       let date = new Date(report.startDate);
       if (date >= stdate && date <= endate) {
         return report;
       }
-      return null;
+      // return;
     });
-
+    // console.log(newData);
     setReportsData(newData);
   };
-
+  // console.log(reportsData);
   const handleChange = (event) => {
     const name = event.target.name;
     const value = event.target.value;
     setFormInputs((values) => ({ ...values, [name]: value }));
   };
-
   const Jobs = [...reportsData];
 
   const headers = [
-    { label: "JobId", key: "jobId" },
-    { label: "ProviderId", key: "providerId" },
-    { label: "Title", key: "title" },
-    { label: "StartDate", key: "startDate" },
-    { label: "EndDate", key: "endDate" },
+    {
+      label: "JobId",
+      key: "jobId",
+    },
+    {
+      label: "ProviderId",
+      key: "providerId",
+    },
+    {
+      label: "Title",
+      key: "title",
+    },
+    {
+      label: "StartDate",
+      key: "startDate",
+    },
+    {
+      label: "EndDate",
+      key: "endDate",
+    },
   ];
 
   const csvLink = {
@@ -157,6 +184,7 @@ function Reports() {
                     type="date"
                     placeholder="Start Date"
                   />
+
                   <Col className="text-danger text-center">
                     {errors.startdate}
                   </Col>
@@ -182,6 +210,7 @@ function Reports() {
                     type="date"
                     placeholder="End Date"
                   />
+
                   <Col className="text-danger text-center">
                     {errors.enddate}
                   </Col>
@@ -189,7 +218,6 @@ function Reports() {
               </Row>
             </FormGroup>
           </Col>
-
           <Col className={classes.actions}>
             <Col className={classes.subm}>
               <button className={classes.buttonsty} onClick={handleSubmit}>
@@ -210,8 +238,10 @@ function Reports() {
           <Table striped hover>
             <thead>
               <tr className={classes.tableHeader}>
+                {/* <th>JobId</th>
+                <th>providerId</th> */}
                 <th>Title</th>
-                <th>Description</th>
+                <th>description</th>
                 <th>Category</th>
                 <th>StartDate</th>
                 <th>EndDate</th>
@@ -230,7 +260,6 @@ function Reports() {
             </tbody>
           </Table>
         </div>
-
         <TableFooter
           range={range}
           slice={slice}
@@ -241,5 +270,4 @@ function Reports() {
     </>
   );
 }
-
 export default Reports;
